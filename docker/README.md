@@ -41,3 +41,5 @@ docker run --rm -it -v "$PWD":/measurement -w /measurement d4j bash
 ```
 
 Results will be created on the host in the current working directory (see: `-v "$PWD":/measurement`).
+
+> **Note:** See an additional example in the Jenkins job descriptor XML that can be found in the `REPO_ROOT/jenkins` folder.
