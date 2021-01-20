@@ -10,6 +10,9 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
+import hu.szte.sed.util.Constants;
+import hu.szte.sed.util.Granularity;
+
 public class BinaryMethodCoverageData<T extends Number> implements CoverageData<T> {
 
 	private final Set<T> data = new HashSet<>();
@@ -32,6 +35,9 @@ public class BinaryMethodCoverageData<T extends Number> implements CoverageData<
 	public void saveData(final File dataFile) {
 		try {
 			try (final DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(dataFile)))) {
+				writeNumber(dos, Constants.MAGIC);
+				dos.writeByte(Granularity.BINARY.getID());
+
 				for (final T methodId : data) {
 					writeNumber(dos, methodId);
 				}

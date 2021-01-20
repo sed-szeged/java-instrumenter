@@ -10,6 +10,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import hu.szte.sed.util.Constants;
+import hu.szte.sed.util.Granularity;
+
 public class NumericMethodCoverageData<T extends Number> implements CoverageData<T> {
 
 	private final Map<T, Long> data = new HashMap<>();
@@ -36,6 +39,9 @@ public class NumericMethodCoverageData<T extends Number> implements CoverageData
 	public void saveData(final File dataFile) {
 		try {
 			try (final DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(dataFile)))) {
+				writeNumber(dos, Constants.MAGIC);
+				dos.writeByte(Granularity.COUNT.getID());
+
 				for (final T methodId : data.keySet()) {
 					writeNumber(dos, methodId);
 					writeNumber(dos, data.get(methodId));

@@ -2,12 +2,18 @@ package hu.szte.sed.util;
 
 public enum Granularity {
 
-	BINARY("binary"), COUNT("count"), CHAIN("chain");
+	BINARY(1, "binary"), COUNT(2, "count"), CHAIN(4, "chain");
 
+	private int id;
 	private String text;
 
-	private Granularity(final String text) {
+	private Granularity(final int id, final String text) {
+		this.id = id;
 		this.text = text;
+	}
+
+	public int getID() {
+		return id;
 	}
 
 	public String getText() {

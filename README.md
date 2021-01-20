@@ -92,11 +92,16 @@ The `trace.trc.names` file contains the list of the instrumented methods in the 
 One or more `.trc` files are generated for each unit test.
 File names follow this template: `<TEST_NAME>-<TEST_RESULT>.<THREAD_ID>.trc` (e.g. `org.joda.time.tz.TestCompiler.testCompile-PASS.1.trc`).
 These files contain the call chains in binary format.
+Each file starts with 4 bytes of magic: `53 6f 44 41` (`'S'`, `'o'`, `'D'`, `'A'`).
+The 5th byte identifies the granularity used during the measurement and thus determines the format of the following part of the file.
 
 ##### Coverage granularity levels, binary formats
 
 With the `granularity` option of the agent you can specify the granularity of the collected coverage data.
 Possible values for this argument are the following:
-- `binary` - Classic hit/miss coverage. For each test the output files contain the ids (short integer, 2 bytes) of the covered code elements.
-- `count` - The extended version of the binary coverage. For each test the output files contain a list of (id,count) tuples where id (short integer, 2 bytes) is the identifier of a covered code element and count represents how many times a particular test has executed the given code element.
-- `chain` - Count interpreted on call chains. For each test the output files contain a list of (length,chain,count) tuples where length (integer, 4 bytes) is the length of the call chain, chain is a list of code element ids (short integer, 2 bytes) and count represents how many times a particular test has yielded the given call chain.
+
+| Option | Description | 5th Byte | Data Format |
+| :----- | ----------- | :------: | ----------- |
+| `binary` | Classic hit/miss coverage. | `1` | For each test the output files contain the ids (short integer, 2 bytes) of the covered code elements. |
+| `count` | The extended version of the binary coverage. | `2`  | For each test the output files contain a list of (id,count) tuples where id (short integer, 2 bytes) is the identifier of a covered code element and count represents how many times a particular test has executed the given code element. |
+| `chain` | Count interpreted on call chains. | `4` | For each test the output files contain a list of (length,chain,count) tuples where length (integer, 4 bytes) is the length of the call chain, chain is a list of code element ids (short integer, 2 bytes) and count represents how many times a particular test has yielded the given call chain. |
