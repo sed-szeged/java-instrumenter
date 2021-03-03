@@ -1,7 +1,10 @@
 package hu.szte.sed.util;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class Options {
 
@@ -22,6 +25,10 @@ public class Options {
 
 	public static final String GRANULARITY = "granularity";
 	public static final Granularity DEFAULT_GRANULARITY = Granularity.CHAIN;
+
+	private static final Set<String> availableOptions = new HashSet<String>(
+		Arrays.asList(DESTFILE, DESTDIR, INCLUDES, EXCLUDES, PERTESTMODE, GRANULARITY)
+	);
 
 	private final Map<String, String> options = new HashMap<String, String>();
 
@@ -86,7 +93,16 @@ public class Options {
 
 		for (final String argString : splitted) {
 			final String[] argParts = argString.split("=");
+
+			if (argParts.length == 0) {
+				continue;
+			}
+
 			final String key = argParts[0];
+
+			if (!availableOptions.contains(key)) {
+				continue;
+			}
 
 			if (argParts.length == 1) {
 				options.put(key, null);

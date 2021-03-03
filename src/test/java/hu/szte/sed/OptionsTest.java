@@ -15,8 +15,34 @@ public class OptionsTest {
 
 		assertEquals(Options.DEFAULT_PERTESTMODE, options.getPerTestMode());
 		assertEquals(Options.DEFAULT_DESTFILE, options.getDestfile());
+		assertEquals(Options.DEFAULT_DESTDIR, options.getDestdir());
 		assertEquals(Options.DEFAULT_INCLUDES, options.getIncludes());
 		assertEquals(Options.DEFAULT_EXCLUDES, options.getExcludes());
+		assertEquals(Options.DEFAULT_GRANULARITY, options.getGranularity());
+	}
+
+	@Test
+	public void testDefaultsWithNull() {
+		Options options = new Options(null);
+
+		assertEquals(Options.DEFAULT_PERTESTMODE, options.getPerTestMode());
+		assertEquals(Options.DEFAULT_DESTFILE, options.getDestfile());
+		assertEquals(Options.DEFAULT_DESTDIR, options.getDestdir());
+		assertEquals(Options.DEFAULT_INCLUDES, options.getIncludes());
+		assertEquals(Options.DEFAULT_EXCLUDES, options.getExcludes());
+		assertEquals(Options.DEFAULT_GRANULARITY, options.getGranularity());
+	}
+
+	@Test
+	public void testDefaultsWithGibberish() {
+		Options options = new Options("=asdf,,==,");
+
+		assertEquals(Options.DEFAULT_PERTESTMODE, options.getPerTestMode());
+		assertEquals(Options.DEFAULT_DESTFILE, options.getDestfile());
+		assertEquals(Options.DEFAULT_DESTDIR, options.getDestdir());
+		assertEquals(Options.DEFAULT_INCLUDES, options.getIncludes());
+		assertEquals(Options.DEFAULT_EXCLUDES, options.getExcludes());
+		assertEquals(Options.DEFAULT_GRANULARITY, options.getGranularity());
 	}
 
 	@Test
@@ -56,6 +82,16 @@ public class OptionsTest {
 		Options options = new Options(str);
 
 		assertEquals(value, options.getDestfile());
+	}
+
+	@Test
+	public void testDestdir() {
+		String value = "/foo/bar";
+		String str = String.format("%s=%s", Options.DESTDIR, value);
+
+		Options options = new Options(str);
+
+		assertEquals(value, options.getDestdir());
 	}
 
 	@Test
