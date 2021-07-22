@@ -1,7 +1,5 @@
 FROM openjdk:7-jdk-jessie
 
-ARG AGENT_VERSION
-
 RUN apt-get update && \
     apt-get install -y build-essential maven && \
     curl -L https://cpanmin.us | perl - App::cpanminus
@@ -21,6 +19,6 @@ COPY pom.xml .
 
 RUN mvn clean package
 
-RUN cp target/method-agent-$AGENT_VERSION-jar-with-dependencies.jar /defects4j/framework/lib/agent.jar
+RUN cp target/method-agent-*-jar-with-dependencies.jar /defects4j/framework/lib/agent.jar
 
 CMD defects4j compile && defects4j test

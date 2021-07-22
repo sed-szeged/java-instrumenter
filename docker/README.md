@@ -7,7 +7,7 @@ This has been extended with a [customized Defects4J](https://github.com/Frenkymd
 ## How to Build
 
 ```
-docker build -t d4j --build-arg AGENT_VERSION=0.0.4 -f Dockerfile ..
+docker build -t d4j -f Dockerfile ..
 ```
 
 > **Note:** You may run into a permission denied error when trying to build the image or run the container.
