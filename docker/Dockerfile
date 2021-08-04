@@ -1,13 +1,31 @@
-FROM openjdk:7-jdk-jessie
+FROM openjdk:8-jdk-buster
 
 RUN apt-get update && \
-    apt-get install -y build-essential maven && \
-    curl -L https://cpanmin.us | perl - App::cpanminus
+    apt-get install software-properties-common -y && \
+    apt-get update && \
+    apt-get install -y \
+                maven \
+                git \
+                build-essential \
+                subversion \
+                perl \
+                curl \
+                unzip \
+                cpanminus \
+                make \
+                && \
+    rm -rf /var/lib/apt/lists/*
 
+# Timezone
+ENV TZ=America/Los_Angeles
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+# Setup Defects4j
+WORKDIR /
 RUN git clone https://github.com/Frenkymd/defects4j.git /defects4j
+
 WORKDIR /defects4j
 RUN git checkout chain
-
 RUN cpanm --installdeps . && ./init.sh
 
 ENV PATH="/defects4j/framework/bin:${PATH}"
