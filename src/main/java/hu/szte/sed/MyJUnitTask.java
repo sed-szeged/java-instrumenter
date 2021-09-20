@@ -26,6 +26,12 @@ public class MyJUnitTask extends JUnitTask {
 
 		String argLine = "-javaagent:${agent.jar}=pertestmode,includes=${agent.includes}";
 
+		final String excludes = getProject().getProperty("agent.excludes");
+
+		if (excludes != null) {
+			argLine += ",excludes=" + excludes;
+		}
+
 		final String granularity = getProject().getProperty("agent.granularity");
 
 		if (granularity != null) {
