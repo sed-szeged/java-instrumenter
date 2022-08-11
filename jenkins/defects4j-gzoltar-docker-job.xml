@@ -1,0 +1,87 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<flow-definition plugin="workflow-job@1207.ve6191ff089f8">
+  <actions>
+    <org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobAction plugin="pipeline-model-definition@2.2114.v2654ca_721309"/>
+    <org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobPropertyTrackerAction plugin="pipeline-model-definition@2.2114.v2654ca_721309">
+      <jobProperties/>
+      <triggers/>
+      <parameters/>
+      <options/>
+    </org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobPropertyTrackerAction>
+  </actions>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>project</name>
+          <defaultValue>Chart</defaultValue>
+          <trim>true</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>version</name>
+          <defaultValue>1b</defaultValue>
+          <trim>true</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>granularity</name>
+          <defaultValue>gzoltar</defaultValue>
+          <trim>true</trim>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@2759.v87459c4eea_ca_">
+    <script>pipeline {
+    agent {
+        docker {
+            image &quot;d4j:latest&quot;
+            args &quot;--user root&quot;
+            customWorkspace &quot;workspace/${project}/${version}/${granularity}&quot;
+        }
+    }
+    environment {
+        D4J_DEBUG = &quot;1&quot;
+    }
+    stages {
+        stage(&apos;init&apos;) {
+            steps {
+                script {
+                    currentBuild.displayName = &quot;${project}-${version}-${granularity}&quot;
+                    currentBuild.description = &quot;project=${project}\nversion=${version}\ngranularity=${granularity}&quot;
+                }
+            }
+        }
+        stage(&apos;checkout&apos;) {
+            steps {
+                sh &apos;defects4j checkout -p ${project} -v ${version} -w .&apos;
+            }
+        }
+        stage(&apos;compile&apos;) {
+            steps {
+                sh &apos;defects4j compile&apos;
+            }
+        }
+        stage(&apos;test&apos;) {
+            steps {
+                sh &apos;defects4j test&apos;
+            }
+        }
+        stage(&apos;archive&apos;) {
+            steps {
+                sh &apos;tar --remove-files -cvzf ${project}-${version}-${granularity}.tar.gz gzoltar.ser fl-report/ all_tests failing_tests&apos;
+            }
+        }
+        stage(&apos;cleanup&apos;) {
+            steps {
+                sh &apos;find . -mindepth 1 -maxdepth 1 ! -name ${project}-${version}-${granularity}.tar.gz -exec rm -r {} +&apos;
+            }
+        }
+    }
+}</script>
+    <sandbox>true</sandbox>
+  </definition>
+  <triggers/>
+  <disabled>false</disabled>
+</flow-definition>
