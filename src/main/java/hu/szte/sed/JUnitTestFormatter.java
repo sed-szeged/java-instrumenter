@@ -1,13 +1,12 @@
 package hu.szte.sed;
 
-import java.io.OutputStream;
-
+import junit.framework.AssertionFailedError;
+import junit.framework.Test;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.taskdefs.optional.junit.JUnitResultFormatter;
 import org.apache.tools.ant.taskdefs.optional.junit.JUnitTest;
 
-import junit.framework.AssertionFailedError;
-import junit.framework.Test;
+import java.io.OutputStream;
 
 public class JUnitTestFormatter implements JUnitResultFormatter {
 
@@ -15,8 +14,8 @@ public class JUnitTestFormatter implements JUnitResultFormatter {
 
 	@Override
 	public void startTest(Test test) {
-		SZTELogger.resetData();
-		SZTELogger.start();
+		CoverageCollector.resetData();
+		CoverageCollector.start();
 
 		fail = false;
 	}
@@ -33,8 +32,8 @@ public class JUnitTestFormatter implements JUnitResultFormatter {
 
 	@Override
 	public void endTest(Test test) {
-		SZTELogger.quit();
-		SZTELogger.dumpData(getName(test) + "-" + (fail ? "FAIL" : "PASS") + ".trc");
+		CoverageCollector.quit();
+//		CoverageCollector.dumpData(getName(test) + "-" + (fail ? "FAIL" : "PASS") + ".trc");
 	}
 
 	@Override

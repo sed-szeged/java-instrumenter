@@ -1,18 +1,9 @@
 package hu.szte.sed.coverage;
 
-import static hu.szte.sed.util.DataOutputStreamHelper.writeNumber;
-
-import java.io.BufferedOutputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-
-import hu.szte.sed.graph.algorithm.Preorder;
 import hu.szte.sed.graph.data.Node;
-import hu.szte.sed.graph.visitor.ChainCollectorVisitor;
 import hu.szte.sed.util.Constants;
-import hu.szte.sed.util.Granularity;
+
+import java.io.File;
 
 public class ChainCoverageData<T extends Number> implements CoverageData<T> {
 
@@ -60,19 +51,19 @@ public class ChainCoverageData<T extends Number> implements CoverageData<T> {
 
 	@Override
 	public void saveData(final File dataFile) {
-		try {
-			try (DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(dataFile)))) {
-				writeNumber(dos, Constants.MAGIC);
-				dos.writeByte(Granularity.CHAIN.getID());
-
-				final Preorder<T> alg = new Preorder<>();
-				final ChainCollectorVisitor<T> visitor = new ChainCollectorVisitor<>(dos);
-
-				alg.run(root, visitor);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+//		try {
+//			try (DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(dataFile)))) {
+//				writeNumber(dos, Constants.MAGIC);
+//				dos.writeByte(Granularity.CHAIN.getId());
+//
+//				final Preorder<T> alg = new Preorder<>();
+//				final ChainCollectorVisitor<T> visitor = new ChainCollectorVisitor<>(dos);
+//
+//				alg.run(root, visitor);
+//			}
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
 	}
 
 }

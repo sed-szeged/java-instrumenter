@@ -1,9 +1,9 @@
 package hu.szte.sed.graph.data;
 
+import hu.szte.sed.graph.visitor.Visitor;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import hu.szte.sed.graph.visitor.Visitor;
 
 public class Node<T extends Number> {
 

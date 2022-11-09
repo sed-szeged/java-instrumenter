@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>hu.szte.sed</groupId>
   <artifactId>method-agent</artifactId>
-  <version>0.0.4</version>
+  <version>0.0.5</version>
   <name>Method Agent</name>
   <build>
   	<plugins>
@@ -29,6 +29,11 @@
   	</plugins>
   </build>
   <dependencies>
+	<dependency>
+	  <groupId>hu.szte.inf.sed</groupId>
+	  <artifactId>fault-localization</artifactId>
+	  <version>0.0.1</version>
+	</dependency>
   	<dependency>
   		<groupId>org.javassist</groupId>
   		<artifactId>javassist</artifactId>

@@ -1,49 +1,33 @@
 package hu.szte.sed.instrumentation;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import hu.szte.inf.sed.fl.coverage.data.Granularity;
+import hu.szte.sed.CoverageCollector;
+import hu.szte.sed.util.Constants;
+import hu.szte.sed.util.Options;
+import javassist.*;
+import javassist.bytecode.MethodInfo;
+
+import java.io.*;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
-
-import hu.szte.sed.SZTELogger;
-import hu.szte.sed.util.Constants;
-import hu.szte.sed.util.Granularity;
-import hu.szte.sed.util.Options;
-import javassist.CannotCompileException;
-import javassist.ClassPool;
-import javassist.CtBehavior;
-import javassist.CtClass;
-import javassist.CtConstructor;
-import javassist.Modifier;
-import javassist.bytecode.MethodInfo;
 
 public class FileTransformer implements ClassFileTransformer {
 
 	private static final String AGENT_PACKAGE;
-	private static final String LOGGER_CLASS;
+	private static final String COLLECTOR_CLASS;
 
 	static {
 		String packageName = FileTransformer.class.getPackage().getName();
 		AGENT_PACKAGE = packageName.substring(0, packageName.lastIndexOf('.')).replace('.', '/');
 
-		LOGGER_CLASS = SZTELogger.class.getCanonicalName();
+		COLLECTOR_CLASS = CoverageCollector.class.getCanonicalName();
 	}
 
 	private final Options options;
@@ -79,7 +63,7 @@ public class FileTransformer implements ClassFileTransformer {
 			ClassPool cPool = ClassPool.getDefault();
 			CtClass ctClass = cPool.makeClass(new ByteArrayInputStream(bytecode));
 
-			CtBehavior behaviors[] = ctClass.getDeclaredBehaviors(); // all constructors and methods declared in the class
+			CtBehavior[] behaviors = ctClass.getDeclaredBehaviors(); // all constructors and methods declared in the class
 
 			for (CtBehavior behavior : behaviors) {
 				final short id = getID(behavior);
@@ -92,7 +76,7 @@ public class FileTransformer implements ClassFileTransformer {
 						  "{"
 						+ "  %s.%s(%s, (short)%d);"
 						+ "}",
-						LOGGER_CLASS,
+						COLLECTOR_CLASS,
 						"enter",
 						"Thread.currentThread().getId()",
 						id);
@@ -103,7 +87,7 @@ public class FileTransformer implements ClassFileTransformer {
 							  "{"
 							+ "  %s.%s(%s, (short)%d);"
 							+ "}",
-							LOGGER_CLASS,
+							COLLECTOR_CLASS,
 							"leave",
 							"Thread.currentThread().getId()",
 							id);
@@ -112,14 +96,7 @@ public class FileTransformer implements ClassFileTransformer {
 			}
 
 			bytecode = ctClass.toBytecode();
-		} catch (IOException e) {
-			System.out.println("Bibi1");
-			throw new IllegalClassFormatException(e.getMessage());
-		} catch (RuntimeException e) {
-			System.out.println("Bibi2");
-			throw new IllegalClassFormatException(e.getMessage());
-		} catch (CannotCompileException e) {
-			System.out.println("Bibi3 " + name + " " + e.getMessage());
+		} catch (IOException | RuntimeException | CannotCompileException e) {
 			throw new IllegalClassFormatException(e.getMessage());
 		}
 
@@ -249,7 +226,7 @@ public class FileTransformer implements ClassFileTransformer {
 				}
 			});
 
-			final StringBuffer line = new StringBuffer();
+			final StringBuilder line = new StringBuilder();
 
 			for (Entry<String, Short> entry : sortedEntries) {
 				line.append(entry.getValue())

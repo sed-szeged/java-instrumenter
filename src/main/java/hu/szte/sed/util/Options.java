@@ -1,10 +1,8 @@
 package hu.szte.sed.util;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import hu.szte.inf.sed.fl.coverage.data.Granularity;
+
+import java.util.*;
 
 public class Options {
 

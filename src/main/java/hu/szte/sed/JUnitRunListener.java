@@ -1,17 +1,30 @@
 package hu.szte.sed;
 
+import hu.szte.inf.sed.fl.coverage.data.MethodCoverageData;
+import hu.szte.inf.sed.fl.coverage.data.TestExecution;
+import hu.szte.inf.sed.fl.coverage.data.TestOutcome;
 import org.junit.runner.Description;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunListener;
 
+import java.io.DataOutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Map;
+
 public class JUnitRunListener extends RunListener {
 
-	private boolean fail = false;
+	private boolean fail;
+	private long startTime;
 
 	@Override
 	public void testStarted(Description description) throws Exception {
-		SZTELogger.resetData();
-		SZTELogger.start();
+		CoverageCollector.resetData();
+		CoverageCollector.start();
+
+		fail = false;
+		startTime = System.currentTimeMillis();
 	}
 
 	@Override
@@ -21,20 +34,26 @@ public class JUnitRunListener extends RunListener {
 
 	@Override
 	public void testFinished(Description description) throws Exception {
-		SZTELogger.quit();
-		SZTELogger.dumpData(getName(description) + "-" + (fail ? "FAIL" : "PASS") + ".trc");
+		CoverageCollector.quit();
 
-		fail = false;
+		for (final Map.Entry<Long, MethodCoverageData<Short, Long>> entry : CoverageCollector.getCoverage().entrySet()) {
+			TestExecution testExecution = new TestExecution();
+
+			testExecution.setTestName(getTestName(description) + '-' + entry.getKey());
+			testExecution.setExecutionTime(System.currentTimeMillis() - startTime);
+			testExecution.setCoverage(entry.getValue());
+			testExecution.setOutcome(fail ? TestOutcome.FAIL : TestOutcome.PASS);
+
+			Path output = Paths.get(CoverageCollector.getOptions().getDestdir(), testExecution.getTestName() + ".trc");
+
+			testExecution.writer().writeTo(new DataOutputStream(Files.newOutputStream(output)));
+		}
 	}
 
-	private String getName(Description description) {
-		final StringBuffer name = new StringBuffer();
+	private String getTestName(Description description) {
+		String name = description.getClassName() + '.' + description.getMethodName();
 
-		name.append(description.getClassName())
-			.append('.')
-			.append(description.getMethodName());
-
-		return name.toString().replaceAll("[^a-zA-Z0-9_.-]+", "_");
+		return name.replaceAll("[^a-zA-Z0-9_.-]+", "_");
 	}
 
 }

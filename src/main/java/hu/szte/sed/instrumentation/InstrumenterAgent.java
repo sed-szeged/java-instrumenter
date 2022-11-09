@@ -1,11 +1,18 @@
 package hu.szte.sed.instrumentation;
 
+import hu.szte.inf.sed.fl.coverage.data.MethodCoverageData;
+import hu.szte.inf.sed.fl.coverage.data.TestExecution;
+import hu.szte.inf.sed.fl.coverage.data.TestOutcome;
+import hu.szte.sed.CoverageCollector;
+import hu.szte.sed.util.Options;
+
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
-
-import hu.szte.sed.SZTELogger;
-import hu.szte.sed.util.Options;
+import java.util.Map;
 
 public class InstrumenterAgent {
 
@@ -18,6 +25,8 @@ public class InstrumenterAgent {
 	}
 
 	private static void setup(String agentArgs, Instrumentation instrumentation) {
+		System.err.println("agent.setup");
+
 		final Options options = new Options(agentArgs);
 
 		Paths.get(options.getDestdir()).toFile().mkdirs();
@@ -25,27 +34,39 @@ public class InstrumenterAgent {
 		final FileTransformer transformer = new FileTransformer(options);
 		instrumentation.addTransformer(transformer);
 
-		try {
-			SZTELogger.setup(options);
 
-			if (!options.getPerTestMode()) {
-				SZTELogger.start();
-			}
+		CoverageCollector.setup(options);
 
-			Runtime.getRuntime().addShutdownHook(new Thread() {
-				@Override
-				public void run() {
-					if (!options.getPerTestMode()) {
-						SZTELogger.quit();
-						SZTELogger.dumpData();
-					}
-
-					transformer.dumpNames();
-				}
-			});
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new RuntimeException("Problems with creating the logger.");
+		if (!options.getPerTestMode()) {
+			CoverageCollector.start();
 		}
+
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+				if (!options.getPerTestMode()) {
+					CoverageCollector.quit();
+
+					for (final Map.Entry<Long, MethodCoverageData<Short, Long>> entry : CoverageCollector.getCoverage().entrySet()) {
+						TestExecution testExecution = new TestExecution();
+
+						testExecution.setTestName("global-" + entry.getKey());
+						testExecution.setExecutionTime(-1);
+						testExecution.setCoverage(entry.getValue());
+						testExecution.setOutcome(TestOutcome.PASS);
+
+						Path output = Paths.get(CoverageCollector.getOptions().getDestdir(), CoverageCollector.getOptions().getDestfile());
+
+						try {
+							testExecution.writer().writeTo(new DataOutputStream(Files.newOutputStream(output)));
+						} catch (IOException e) {
+							throw new RuntimeException(e);
+						}
+					}
+				}
+
+				transformer.dumpNames();
+			}
+		});
 	}
 }
