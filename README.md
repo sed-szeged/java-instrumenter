@@ -2,6 +2,12 @@
 
 ## Build
 
+### Custom dependencies
+
+Before building this project, you should install the [fault-localization](https://github.com/sed-szeged/fault-localization) dependency into your local Maven repository.
+
+### Building
+
 ```
 mvn clean package
 ```
